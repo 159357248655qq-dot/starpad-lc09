@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>星港发射场 · STARPORT LC-09</title>
+<meta name="description" content="可交互三维火箭发射场：点火、升空、入轨、环绕地球。" />
+<link rel="stylesheet" href="./css/style.css" />
+<script type="importmap">
+{"imports":{"three":"./vendor/three@0.160.0/build/three.module.js","three/addons/":"./vendor/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<div class="vignette" aria-hidden="true"></div>
+<div class="frame" aria-hidden="true"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-row"><span class="brand-mark">STARPORT</span><span class="brand-code">LC-09</span></div>
+    <h1>星港发射场</h1>
+    <p class="brand-sub">SG-01 任务 · 长征九号重型运载火箭</p>
+  </div>
+
+  <nav class="rail" aria-label="任务阶段">
+    <div class="rail-line"><i id="railFill"></i></div>
+    <ol>
+      <li data-node="ignition"><span class="dot"></span><b>点火</b><em>IGNITION</em></li>
+      <li data-node="liftoff"><span class="dot"></span><b>升空</b><em>LIFTOFF</em></li>
+      <li data-node="orbit"><span class="dot"></span><b>入轨</b><em>ORBIT</em></li>
+      <li data-node="coast"><span class="dot"></span><b>环绕</b><em>COAST</em></li>
+    </ol>
+  </nav>
+
+  <div class="clockbox">
+    <div class="clock-label">任务时钟 <span>MISSION CLOCK</span><i id="warpTag">×10</i></div>
+    <div id="clock" class="clock">T-00:08</div>
+    <div class="phase"><b id="phaseZh">待命</b><span id="phaseEn">STANDBY</span></div>
+  </div>
+</header>
+
+<aside class="telemetry panel">
+  <div class="panel-head"><span>遥测</span><em>TELEMETRY</em></div>
+  <div class="tel-grid">
+    <div class="tel"><label>高度 <em>ALTITUDE</em></label><div class="tel-value"><b id="alt">0</b><i>km</i></div><div class="tel-bar"><span id="altBar"></span></div></div>
+    <div class="tel"><label>速度 <em>VELOCITY</em></label><div class="tel-value"><b id="vel">0</b><i>km/h</i></div><div class="tel-bar"><span id="velBar"></span></div></div>
+    <div class="tel"><label>马赫 <em>MACH</em></label><div class="tel-value"><b id="mach">0.0</b><i>M</i></div><div class="tel-bar"><span id="machBar"></span></div></div>
+    <div class="tel"><label>推力 <em>THRUST</em></label><div class="tel-value"><b id="thr">0</b><i>%</i></div><div class="tel-bar"><span id="thrBar"></span></div></div>
+  </div>
+  <div class="stage-strip">
+    <span data-st="boosters"><i></i>助推 ×4</span>
+    <span data-st="stage1"><i></i>一级</span>
+    <span data-st="stage2"><i></i>二级</span>
+    <span data-st="payload"><i></i>载荷</span>
+  </div>
+  <div class="orbit-readout" id="orbitReadout">
+    <div><label>轨道倾角 <em>INCLINATION</em></label><b>41.5°</b></div>
+    <div><label>近地点 <em>PERIGEE</em></label><b id="perigee">—</b></div>
+  </div>
+</aside>
+
+<aside class="logpanel">
+  <div class="panel-head"><span>飞行事件</span><em>FLIGHT EVENTS</em></div>
+  <ul id="log"></ul>
+  <div class="hotspot-toggle" id="hotspotNote">标注：勤务塔 · 摆杆 · 推进剂球罐</div>
+</aside>
+
+<div id="hotspots" class="hotspots"></div>
+
+<footer class="bottom">
+  <div class="dock">
+    <div class="dock-side">
+      <button class="chip" data-act="audio"><span class="chip-dot"></span>音效 <em>OFF</em></button>
+      <button class="chip" data-act="night">昼夜 <em>DAY</em></button>
+      <button class="chip is-on" data-act="hotspots">标注 <em>ON</em></button>
+    </div>
+    <div class="dock-main">
+      <button id="btnLaunch" class="launch"><span class="launch-en">IGNITION</span><span class="launch-zh">点火发射</span></button>
+      <button id="btnReset" class="ghost" disabled>复位</button>
+    </div>
+    <div class="dock-cams">
+      <button class="cam is-on" data-cam="auto">导演</button>
+      <button class="cam" data-cam="wide">全景</button>
+      <button class="cam" data-cam="tower">塔架</button>
+      <button class="cam" data-cam="chase">追拍</button>
+      <button class="cam" data-cam="orbit">环绕</button>
+    </div>
+  </div>
+  <div class="hint"><span>拖动旋转 · 滚轮缩放</span><span id="hintSpace">空格 点火</span><span>R 复位</span><span>C 镜头</span><span>N 昼夜</span><span>M 音效</span><span>H 标注</span></div>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<div id="loader" class="loader">
+  <div class="loader-inner">
+    <div class="loader-code">STARPORT · LAUNCH COMPLEX 09</div>
+    <h2>星港发射场</h2>
+    <p>点火 · 升空 · 入轨 · 环绕</p>
+    <div class="loader-bar"><i id="loadFill"></i></div>
+    <div class="loader-meta"><span id="loadText">装配发射工位与运载火箭</span><b id="loadPct">0%</b></div>
+  </div>
+</div>
+
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>
