@@ -161,6 +161,7 @@ export class Rocket {
     this.mMetal = new THREE.MeshStandardMaterial({ color: 0x8d949c, roughness: 0.32, metalness: 0.82 });
     this.mRed = new THREE.MeshStandardMaterial({ color: 0xa9332a, roughness: 0.5, metalness: 0.2 });
     this.mGold = new THREE.MeshStandardMaterial({ color: 0xc7a45a, roughness: 0.35, metalness: 0.7 });
+    this.mSolar = new THREE.MeshStandardMaterial({ color: 0x1e3f78, roughness: 0.32, metalness: 0.62, emissive: 0x081426, emissiveIntensity: 0.55 });
     this.mNozzle = new THREE.MeshStandardMaterial({ color: 0x3a3f45, roughness: 0.4, metalness: 0.85 });
   }
 
@@ -227,6 +228,9 @@ export class Rocket {
     this._cyl(s2, 2.28, 2.32, 14.5, 50.2, this.mWhite, 40);
     this._cyl(s2, 2.3, 2.3, 0.5, 47.0, this.mDark, 40);
     this._cyl(s2, 2.3, 2.3, 0.5, 56.7, this.mDark, 40);
+    this._cyl(s2, 2.29, 2.29, 0.34, 53.0, this.mRed, 40);
+    this._cyl(s2, 1.20, 2.05, 2.6, 41.4, this.mMetal, 40);
+    this._cyl(s2, 2.06, 2.06, 0.22, 42.7, this.mDark, 40);
     this._box(s2, 0.26, 12.0, 0.4, 2.2, 50.5, 0.8, this.mWhite2);
     this._cyl(s2, 2.35, 2.2, 1.4, 58.2, this.mMetal, 40);
 
@@ -263,12 +267,14 @@ export class Rocket {
   _buildPayload() {
     const g = new THREE.Group();
     g.position.y = 60.0;
-    const bus = this._box(g, 1.5, 1.7, 1.5, 0, 0.9, 0, this.mGold);
+    const bus = this._box(g, 1.9, 2.0, 1.9, 0, 1.05, 0.95, this.mGold);
     for (const sx of [-1, 1]) {
-      const panel = this._box(g, 0.08, 1.5, 2.6, sx * 0.8, 0.95, 0, this.mDark);
+      const panel = this._box(g, 0.10, 2.0, 3.4, sx * 2.05, 0.95, 0, this.mSolar);
       panel.userData.panel = true;
     }
-    this._cyl(g, 0.12, 0.12, 2.4, 0.2, this.mMetal, 8).rotation.z = Math.PI / 2;
+    const truss = this._cyl(g, 0.10, 0.10, 3.85, 0.95, this.mMetal, 8);
+    truss.rotation.z = Math.PI / 2;
+    truss.position.set(0, 0.95, 0);
     g.scale.setScalar(1.45);
     this.payload = g;
     this.payload.visible = true;
@@ -481,7 +487,10 @@ export class Rocket {
     const wp = new THREE.Vector3();
     this.payload.getWorldPosition(wp);
     this.scene.attach(this.payload);
-    this.payload.userData.vel = new THREE.Vector3(0.8, 2.0, 0.5);
+    this.payload.position.add(new THREE.Vector3(12.0, -26.0, -7.0));
+    this.payload.scale.setScalar(2.40);
+    this.payload.rotation.y += 0.95;
+    this.payload.userData.vel = new THREE.Vector3(2.6, 0.35, 1.6);
     this.payload.userData.spin = 0.12;
     this.payload.userData.free = true;
     this.debris.push(this.payload);
@@ -615,13 +624,13 @@ export class Rocket {
     for (const d of this.debris) {
       if (!d.userData.vel) continue;
       d.position.addScaledVector(d.userData.vel, dt);
-      d.userData.vel.y -= dt * 7.5;
-      if (d.userData.spin) {
+      if (!d.userData.free) d.userData.vel.y -= dt * 7.5;
+      if (d.userData.free) {
+        d.rotation.y += (d.userData.spin || 0) * dt;
+      } else if (d.userData.spin && d.userData.spin.isVector3) {
         d.rotation.x += d.userData.spin.x * dt;
         d.rotation.y += d.userData.spin.y * dt;
         d.rotation.z += d.userData.spin.z * dt;
-      } else if (d.userData.free) {
-        d.rotation.y += d.userData.spin * dt;
       }
     }
 

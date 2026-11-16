@@ -177,7 +177,7 @@ class App {
   animate() {
     requestAnimationFrame(() => this.animate());
     const dt = Math.min(this.clock.getDelta(), 0.05);
-    this.update(dt, false);
+    if (!this.paused) this.update(dt, false);
     this.composer.render();
   }
 
@@ -586,6 +586,23 @@ class App {
         return { t: st.t, phase: st.phase, altKm: st.altKm, throttle: st.throttle, camera: app.camera.position.toArray() };
       },
       cam: () => app.camera.position.toArray(),
+      stageScreen: () => {
+        const wp = new THREE.Vector3();
+        app.rocket.stage2Group.getWorldPosition(wp);
+        const ndc = wp.clone().project(app.camera);
+        return { world: wp.toArray(), ndc: ndc.toArray(), screen: [ (ndc.x * 0.5 + 0.5) * innerWidth, (1 - (ndc.y * 0.5 + 0.5)) * innerHeight ] };
+      },
+      payloadInfo: () => {
+        const p = app.rocket.payload;
+        const wp = new THREE.Vector3();
+        p.getWorldPosition(wp);
+        const ndc = wp.clone().project(app.camera);
+        return { parent: p.parent === app.scene ? 'scene' : (p.parent === app.rocket.stack ? 'stack' : 'other'), local: p.position.toArray(), world: wp.toArray(), scale: p.scale.x, ndc: ndc.toArray(), screen: [ (ndc.x * 0.5 + 0.5) * innerWidth, (1 - (ndc.y * 0.5 + 0.5)) * innerHeight ] };
+      },
+      earthRig: () => app.world.earthRig,
+      pause: (v) => { app.paused = !!v; },
+      setEarth: (v) => { app.world.earthRig.group.visible = !!v; app.composer.render(); },
+      setSky: (v) => { app.world.sky.visible = !!v; app.composer.render(); },
     };
   }
 }

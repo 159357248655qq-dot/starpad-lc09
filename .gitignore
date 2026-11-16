@@ -1,0 +1,6 @@
+# local capture / headless-profile artifacts
+.edgetmp_*/
+smoke_*
+out_*.png
+shot_*.png
+node_modules/

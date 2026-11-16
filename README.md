@@ -35,10 +35,10 @@ T-10s 发射程序启动 → T-6s 摆杆回收 → T-3s 贮箱排气 → T-0 点
 
 - **Blender 5.2**：`blender/build_complex.py` 程序化生成发射台、导流槽、勤务塔、摆杆、避雷塔、球罐、水塔、总装厂房、探照灯与道路；合并静态几何为 `assets/launch_complex.glb`（约 720 KB）。
 - **three.js 0.160**（本地 `vendor/`，不依赖 CDN）。
-- 后期：EffectComposer + HalfFloat MSAA RenderTarget、UnrealBloom、调色 ShaderPass、ACES Filmic、暗角/颗粒。
-- 火箭：程序化两级半构型，助推器/一级/整流罩/载荷均可分离；多层尾焰 Shader、地面烟、导流槽火光、真空羽流。
-- 地球：程序化海陆/海岸线/云层/大气壳 Shader；入轨后镜头拉远形成地球弧线。
-- 天空：昼夜/太空渐变、星空、太阳/月亮方向光；PMREM 环境反射。
+- 后期：EffectComposer + HalfFloat HDR RenderTarget、UnrealBloom、调色 ShaderPass、ACES Filmic、暗角/颗粒。
+- 火箭：程序化两级半构型，助推器/一级/整流罩/载荷均可分离；多层尾焰 Shader、地面烟、真空羽流、载荷太阳翼与在轨漂移。
+- 地球：4K 昼面 / 云层 / 夜面城市灯 / 海面高光贴图 + 自定义大气散射 Shader；两级大气壳、海洋镜面、云层 alpha、边缘蓝色散射与晨昏暖边。入轨后镜头拉远，东亚大陆、日本列岛与太平洋占据画面下半部。
+- 天空：程序化星空 + 银河尘埃带 + 行星大气渐变；不使用外部天空盒。
 - 音效：全部用 WebAudio 实时合成（噪声风声、低频轰鸣、倒计时滴答、点火 boom、分离 clank、跨音速 sonic boom），无外部音频文件。
 - HUD：任务时钟、遥测、飞行事件流、阶段进度、结构热点、镜头/昼夜/音效开关。
 
@@ -50,16 +50,17 @@ css/style.css         HUD 与玻璃面板样式
 js/app.js             启动、时间线、导演镜头、后期、交互、调试 API
 js/rocket.js          火箭几何、分离、尾焰、烟雾、点火光
 js/world.js           天空、光照、雾、地面、云、星
-js/earth.js           地球纹理与网格
-js/shaders.js         天空/地球/尾焰/调色 GLSL
+js/earth.js           地球纹理、网格与大气
+js/shaders.js         天空/地球/大气/尾焰/调色 GLSL
 js/audio.js           WebAudio 合成音效
 js/pad.js             发射场 GLB 加载与摆杆动画
 js/timeline.js        任务时间线、遥测与事件
 js/ui.js              HUD 更新、按钮、日志
 blender/build_complex.py  Blender 程序化建模脚本
 assets/launch_complex.glb 发射场模型
-vendor/three@0.160.0      three.js 本地副本
-previews/                最终预览图
+assets/earth/         4K 地球纹理（昼/云/夜/海面高光）
+vendor/three@0.160.0  three.js 本地副本
+previews/             最终预览图
 ```
 
 ## 截图
@@ -68,3 +69,8 @@ previews/                最终预览图
 ![点火](previews/ignition.png)
 ![入轨环绕](previews/orbit.png)
 ![夜间点火](previews/night.png)
+
+## 素材与许可
+
+- 地球昼面、云层、夜面与海面高光纹理来自 [Solar System Scope](https://www.solarsystemscope.com/textures/)，采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 许可，原始影像基于 NASA 可见光地球数据。
+- 发射场、火箭、HUD 与其余程序化材质均为本项目自制。

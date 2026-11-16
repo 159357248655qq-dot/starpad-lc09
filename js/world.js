@@ -48,7 +48,7 @@ export class World {
     this._buildEnvironment();
     this._buildSky();
     this._buildTerrain();
-    this.earthRig = buildEarth(scene, this.sunDir);
+    this.earthRig = buildEarth(scene, this.sunDir, renderer);
     this._buildFloodlights();
   }
 
