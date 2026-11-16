@@ -150,7 +150,9 @@ class App {
 
     const w = window.innerWidth, h = window.innerHeight;
     const rt = new THREE.WebGLRenderTarget(w * renderer.getPixelRatio(), h * renderer.getPixelRatio(), {
-      type: THREE.HalfFloatType, samples: 4,
+      // ANGLE/D3D11 can resolve a multisampled HalfFloat target as a black band.
+      // Keep samples:0; pixelRatio + bloom still give a clean image.
+      type: THREE.HalfFloatType, samples: 0,
     });
     this.composer = new EffectComposer(renderer, rt);
     this.composer.setSize(w, h);
